@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins;
 
+import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.api.BitbucketApiService;
@@ -24,6 +25,11 @@ public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
         }
 
         setAuthenticated(authenticated);
+    }
+
+    @Override
+    public GrantedAuthority[] getAuthorities() {
+        return new GrantedAuthority[0];
     }
 
     /**
