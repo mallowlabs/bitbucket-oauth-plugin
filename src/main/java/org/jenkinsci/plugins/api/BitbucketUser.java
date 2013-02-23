@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.api;
 
+import hudson.security.SecurityRealm;
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 
@@ -28,7 +30,7 @@ public class BitbucketUser implements UserDetails {
 
     @Override
     public GrantedAuthority[] getAuthorities() {
-        return new GrantedAuthority[] {};
+        return new GrantedAuthority[] { SecurityRealm.AUTHENTICATED_AUTHORITY };
     }
 
     @Override

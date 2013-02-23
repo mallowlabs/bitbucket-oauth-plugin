@@ -31,7 +31,7 @@ public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public GrantedAuthority[] getAuthorities() {
-        return new GrantedAuthority[] { SecurityRealm.AUTHENTICATED_AUTHORITY };
+        return this.bitbucketUser != null ? this.bitbucketUser.getAuthorities() : new GrantedAuthority[0];
     }
 
     /**
