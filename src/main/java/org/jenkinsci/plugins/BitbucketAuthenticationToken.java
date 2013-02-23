@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins;
 
+import hudson.security.SecurityRealm;
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +31,7 @@ public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public GrantedAuthority[] getAuthorities() {
-        return new GrantedAuthority[0];
+        return new GrantedAuthority[] { SecurityRealm.AUTHENTICATED_AUTHORITY };
     }
 
     /**
