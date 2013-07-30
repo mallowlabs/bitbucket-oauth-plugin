@@ -3,6 +3,7 @@ package org.jenkinsci.plugins;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
+import hudson.model.Hudson;
 import hudson.model.User;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
@@ -90,7 +91,8 @@ public class BitbucketSecurityRealm extends SecurityRealm {
 
         request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
         
-        String callback = request.getRootPath() + "/securityRealm/finishLogin";
+        String callback = Hudson.getInstance().getRootUrl() + "/securityRealm/finishLogin";
+        callback = StringUtils.replace(callback, "//", "/");
 
         BitbucketApiService bitbucketApiService = new BitbucketApiService(clientID, clientSecret, callback);
 
