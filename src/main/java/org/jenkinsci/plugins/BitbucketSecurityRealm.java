@@ -90,9 +90,12 @@ public class BitbucketSecurityRealm extends SecurityRealm {
     public HttpResponse doCommenceLogin(StaplerRequest request, @Header("Referer") final String referer) throws IOException {
 
         request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
-        
-        String callback = Hudson.getInstance().getRootUrl() + "/securityRealm/finishLogin";
-        callback = StringUtils.replace(callback, "//", "/");
+
+        String rootUrl = Hudson.getInstance().getRootUrl();
+        if (StringUtils.endsWith(rootUrl, "/")) {
+            rootUrl = StringUtils.left(rootUrl, StringUtils.length(rootUrl) - 1);
+        }
+        String callback = rootUrl + "/securityRealm/finishLogin";
 
         BitbucketApiService bitbucketApiService = new BitbucketApiService(clientID, clientSecret, callback);
 
