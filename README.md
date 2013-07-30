@@ -14,21 +14,24 @@ First you need to get consumer key/secret from Bitbucket.
 2. Click accountname > **Manage Account** from the menu bar.
    The Account settings page appears.
 3. Click **Integrated applications** from the menu bar.
-4. Click the **Add consumer** button.  
+4. Click the **Add consumer** button.
 5. The system requests the following information:
    **Name** is required. Others are optional.
-6. Press **Add consumer**. 
+6. Press **Add consumer**.
    The system generates a key and a secret for you.
    Toggle the consumer name to see the generated Key and Secret value for your consumer.
 
 Second, you need to configure your Jenkins.
 
 1. Open Jenkins **Configure System** page.
-2. Check **Enable security**.
-3. Select **Bitbucket OAuth Plugin** in **Security Realm**.
-4. Input your Consumer Key to **Client ID**.
-5. Input your Consumer Secret to **Client Secret**.
-6. Click **Save** button.
+2. Set correct URL to **Jenkins URL**
+3. Click **Save** button.
+4. Open Jenkins **Configure Global Security** page.
+5. Check **Enable security**.
+6. Select **Bitbucket OAuth Plugin** in **Security Realm**.
+7. Input your Consumer Key to **Client ID**.
+8. Input your Consumer Secret to **Client Secret**.
+9. Click **Save** button.
 
 Credits
 -------
