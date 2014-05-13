@@ -6,6 +6,7 @@ import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -144,8 +145,8 @@ public class BitbucketSecurityRealm extends SecurityRealm {
                 throw new BadCredentialsException("Unexpected authentication type: " + authentication);
             }
         }, new UserDetailsService() {
-            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-                throw new UsernameNotFoundException(username);
+            public UserDetails loadUserByUsername(String username)  throws UserMayOrMayNotExistException, DataAccessException {
+                throw new UserMayOrMayNotExistException("Cannot verify users in this context");
             }
         });
     }
