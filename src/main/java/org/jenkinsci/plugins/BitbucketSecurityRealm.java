@@ -159,9 +159,15 @@ public class BitbucketSecurityRealm extends SecurityRealm {
     @Override
     public UserDetails loadUserByUsername(String username) {
         UserDetails result = null;
-        BitbucketAuthenticationToken authToken = (BitbucketAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        if (authToken == null) {
+        Authentication token = SecurityContextHolder.getContext().getAuthentication();
+        if (token == null) {
             throw new UsernameNotFoundException("BitbucketAuthenticationToken = null, no known user: " + username);
+        }
+        BitbucketAuthenticationToken authToken;
+        if (token instanceof BitbucketAuthenticationToken) {
+          authToken = (BitbucketAuthenticationToken) token;
+        } else {
+          throw new UserMayOrMayNotExistException("Unexpected authentication type: " + token);
         }
         result = new BitbucketApiService(clientID, clientSecret).getUserByUsername(username);
         if (result == null) {
