@@ -1,14 +1,5 @@
 package org.jenkinsci.plugins;
 
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.User;
-import hudson.security.GroupDetails;
-import hudson.security.SecurityRealm;
-import hudson.security.UserMayOrMayNotExistException;
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +29,15 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Descriptor;
+import hudson.model.User;
+import hudson.security.GroupDetails;
+import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException;
+import jenkins.model.Jenkins;
 
 public class BitbucketSecurityRealm extends SecurityRealm {
 
@@ -92,7 +92,11 @@ public class BitbucketSecurityRealm extends SecurityRealm {
 
         request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
 
-        String rootUrl = Hudson.getInstance().getRootUrl();
+        Jenkins jenkins = Jenkins.getInstance();
+        if (jenkins == null) {
+        	throw new RuntimeException("Jenkins is not started yet.");
+        }
+		String rootUrl = jenkins.getRootUrl();
         if (StringUtils.endsWith(rootUrl, "/")) {
             rootUrl = StringUtils.left(rootUrl, StringUtils.length(rootUrl) - 1);
         }
@@ -124,7 +128,9 @@ public class BitbucketSecurityRealm extends SecurityRealm {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             User u = User.current();
-            u.setFullName(auth.getName());
+            if (u != null) {
+                u.setFullName(auth.getName());
+            }
 
         } else {
             LOGGER.log(Level.SEVERE, "doFinishLogin() accessToken = null");
@@ -163,10 +169,7 @@ public class BitbucketSecurityRealm extends SecurityRealm {
         if (token == null) {
             throw new UsernameNotFoundException("BitbucketAuthenticationToken = null, no known user: " + username);
         }
-        BitbucketAuthenticationToken authToken;
-        if (token instanceof BitbucketAuthenticationToken) {
-          authToken = (BitbucketAuthenticationToken) token;
-        } else {
+        if (!(token instanceof BitbucketAuthenticationToken)) {
           throw new UserMayOrMayNotExistException("Unexpected authentication type: " + token);
         }
         result = new BitbucketApiService(clientID, clientSecret).getUserByUsername(username);

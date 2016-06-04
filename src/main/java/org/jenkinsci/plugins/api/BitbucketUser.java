@@ -1,11 +1,12 @@
 package org.jenkinsci.plugins.api;
 
-import hudson.security.SecurityRealm;
-
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
+import org.apache.commons.lang.StringUtils;
 
 import com.google.gson.annotations.SerializedName;
+
+import hudson.security.SecurityRealm;
 
 public class BitbucketUser implements UserDetails {
 
@@ -13,7 +14,7 @@ public class BitbucketUser implements UserDetails {
         public BitbucketUser user;
     }
 
-    public String username;
+    public String username = StringUtils.EMPTY;
     @SerializedName("first_name")
     public String firstName;
     @SerializedName("last_name")
