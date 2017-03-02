@@ -11,15 +11,16 @@ Bitbucket Security Realm (authentication):
 First you need to get consumer key/secret from Bitbucket.
 
 1. Log into your Bitbucket account.
-2. Click accountname > **Manage Account** from the menu bar.
-   The Account settings page appears.
-3. Click **Integrated applications** from the menu bar.
-4. Click the **Add consumer** button.
-5. The system requests the following information:
+2. Click on your account avatar in the top right corner and select **Bitbucket Settings**.
+3. If your are a member of an organization, ensure you are on Team settings, not Account settings, from the drop down.
+4. Under ACCESS MANAGEMENT select **OAuth**.
+5. Under OAuth consumers, click **Add consumer**
+6. The system requests the following information:
    **Name** is required. Others are optional.
-6. Press **Add consumer**.
-   The system generates a key and a secret for you.
-   Toggle the consumer name to see the generated Key and Secret value for your consumer.
+7. Under Permissions, select **Projects > Read**
+8. Click Save.
+The system generates a key and a secret for you.
+Toggle the consumer name to see the generated Key and Secret value for your consumer.
 
 Second, you need to configure your Jenkins.
 
@@ -64,4 +65,3 @@ License
 	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
