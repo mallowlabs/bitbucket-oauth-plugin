@@ -34,6 +34,44 @@ Second, you need to configure your Jenkins.
 8. Input your Consumer Secret to **Client Secret**.
 9. Click **Save** button.
 
+
+Via Groovy script
+-----------------------------------
+```
+import hudson.security.AuthorizationStrategy
+import hudson.security.SecurityRealm
+import jenkins.model.Jenkins
+import org.jenkinsci.plugins.BitbucketSecurityRealm
+
+// parameters
+def bitbucketSecurityRealmParameters = [
+  clientID:     '012345678901234567',
+  clientSecret: '012345678901234567012345678901'
+]
+
+// security realm configuration
+SecurityRealm bitbucketSecurityRealm = new BitbucketSecurityRealm(
+  bitbucketSecurityRealmParameters.clientID,
+  bitbucketSecurityRealmParameters.clientSecret
+)
+
+// authorization strategy - full control when logged in
+AuthorizationStrategy authorizationStrategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
+
+// authorization strategy - set anonymous read to false
+authorizationStrategy.setAllowAnonymousRead(false)
+
+// get Jenkins instance
+Jenkins jenkins = Jenkins.getInstance()
+
+// add configurations to Jenkins
+jenkins.setSecurityRealm(bitbucketSecurityRealm)
+jenkins.setAuthorizationStrategy(authorizationStrategy)
+
+// save current Jenkins state to disk
+jenkins.save()
+```
+
 Credits
 -------
 This plugin reuses many codes of [Jenkins Assembla Auth Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Assembla+Auth+Plugin).
