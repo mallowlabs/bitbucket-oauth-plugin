@@ -5,8 +5,10 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import org.acegisecurity.userdetails.UserDetails;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.api.BitbucketUser.BitbucketUserResponce;
@@ -22,7 +24,10 @@ import com.google.gson.Gson;
 
 public class BitbucketApiService {
 
+    private static final Logger LOGGER = Logger.getLogger(BitbucketApiService.class.getName());
+
     private static final String API_ENDPOINT = "https://api.bitbucket.org/1.0/";
+    private static final String API2_ENDPOINT = "https://api.bitbucket.org/2.0/";
 
     private OAuthService service;
 
@@ -60,9 +65,54 @@ public class BitbucketApiService {
         Gson gson = new Gson();
         BitbucketUserResponce userResponce = gson.fromJson(json, BitbucketUserResponce.class);
         if (userResponce != null) {
+
+            userResponce.user.addAuthority("authenticated");
+
+            findAndAddUserTeamAccess(accessToken, userResponce.user, "admin");
+            findAndAddUserTeamAccess(accessToken, userResponce.user, "contributor");
+            findAndAddUserTeamAccess(accessToken, userResponce.user, "member");
+
             return userResponce.user;
+
         } else {
             return null;
+        }
+    }
+
+    private void findAndAddUserTeamAccess(Token accessToken, BitbucketUser bitbucketUser, String role)
+    {
+        Gson gson = new Gson();
+        String url = API2_ENDPOINT + "teams/?role="+role;
+        try
+        {
+            do
+            {
+                OAuthRequest request1 = new OAuthRequest(Verb.GET, url);
+                service.signRequest(accessToken, request1);
+                Response response1 = request1.send();
+                String json1 = response1.getBody();
+
+                LOGGER.finest("Response from bitbucket api " + url);
+                LOGGER.finest(json1);
+
+                BitBucketTeamsResponse bitBucketTeamsResponse = gson.fromJson(json1, BitBucketTeamsResponse.class);
+
+                if(CollectionUtils.isNotEmpty(bitBucketTeamsResponse.getTeamsList()))
+                {
+                    for(Teams team : bitBucketTeamsResponse.getTeamsList())
+                    {
+                        String authority = team.getUsername() + "::" + role;
+                        bitbucketUser.addAuthority(authority);
+                    }
+                }
+                url = bitBucketTeamsResponse.getNext();
+            }
+            while(url != null);
+        }
+        catch(Exception e)
+        {
+            // Some error, So ignore it and move on.
+            e.printStackTrace();
         }
     }
 

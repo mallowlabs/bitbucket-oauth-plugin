@@ -34,6 +34,21 @@ Second, you need to configure your Jenkins.
 8. Input your Consumer Secret to **Client Secret**.
 9. Click **Save** button.
 
+### Bitbucket Team access Support
+Based on the teams that user has access to, this plugin automatically creates groups of the form
+
+_team::role_
+
+Supported roles are `admin`, `contributor` and `member`
+
+Examples
+```
+team1::admin
+team2::contributor
+team3::member
+```
+
+These group names can be used in Jenkins *Matrix-based security* to give fine grained access control based on the users team access in Bitbucket.
 
 Via Groovy script
 -----------------------------------

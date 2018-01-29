@@ -1,12 +1,14 @@
 package org.jenkinsci.plugins.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 import org.apache.commons.lang.StringUtils;
 
 import com.google.gson.annotations.SerializedName;
-
-import hudson.security.SecurityRealm;
 
 public class BitbucketUser implements UserDetails {
 
@@ -25,13 +27,21 @@ public class BitbucketUser implements UserDetails {
     @SerializedName("resource_uri")
     public String resourceUri;
 
+    List<GrantedAuthority> grantedAuthorties = new ArrayList<GrantedAuthority>();
+
     public BitbucketUser() {
         super();
     }
 
     @Override
     public GrantedAuthority[] getAuthorities() {
-        return new GrantedAuthority[] { SecurityRealm.AUTHENTICATED_AUTHORITY };
+
+        return grantedAuthorties.toArray(new GrantedAuthority[grantedAuthorties.size()]);
+    }
+
+    public void addAuthority(String role)
+    {
+        grantedAuthorties.add(new GrantedAuthorityImpl(role));
     }
 
     @Override

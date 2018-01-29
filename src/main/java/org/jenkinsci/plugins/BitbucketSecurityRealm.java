@@ -14,6 +14,7 @@ import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.api.BitbucketApiService;
+import org.jenkinsci.plugins.api.BitbucketGroup;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpRedirect;
@@ -49,7 +50,7 @@ public class BitbucketSecurityRealm extends SecurityRealm {
     private String clientSecret;
 
     @DataBoundConstructor
-    public BitbucketSecurityRealm(String clientID, String clientSecret) {
+    public BitbucketSecurityRealm(String clientID, String clientSecret, String team) {
         super();
         this.clientID = Util.fixEmptyAndTrim(clientID);
         this.clientSecret = Util.fixEmptyAndTrim(clientSecret);
@@ -181,7 +182,14 @@ public class BitbucketSecurityRealm extends SecurityRealm {
 
     @Override
     public GroupDetails loadGroupByGroupname(String groupName) {
-        throw new UsernameNotFoundException("groups not supported");
+        if(groupName.contains("::"))
+        {
+            return new BitbucketGroup(groupName);
+        }
+        else
+        {
+            throw new UsernameNotFoundException("Group does not exist:" + groupName);
+        }
     }
 
     @Override
