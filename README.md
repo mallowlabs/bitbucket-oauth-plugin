@@ -3,7 +3,7 @@ Jenkins Bitbucket OAuth Plugin
 
 Overview
 --------
-This Jenkins plugin enables [OAuth](http://oauth.net) authentication for [Bitbucket](https://bitbucket.org) users.
+This Jenkins plugin enables [OAuth](https://oauth.net) authentication for [Bitbucket](https://bitbucket.org) users.
 
 Bitbucket Security Realm (authentication):
 --------------------------------------------
@@ -17,7 +17,7 @@ First you need to get consumer key/secret from Bitbucket.
 5. Under OAuth consumers, click **Add consumer**
 6. The system requests the following information:
    **Name** is required. Others are optional.
-7. Under Permissions, select **Projects > Read**
+7. Under Permissions, select **Account > Read** and **Team membership > Read**(optional).
 8. Click Save.
 The system generates a key and a secret for you.
 Toggle the consumer name to see the generated Key and Secret value for your consumer.

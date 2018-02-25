@@ -58,28 +58,60 @@ public class BitbucketApiService {
     }
 
     public BitbucketUser getUserByToken(Token accessToken) {
+        BitbucketUser bitbucketUser = getBitbucketUser(accessToken);
+
+        bitbucketUser.addAuthority("authenticated");
+
+        findAndAddUserTeamAccess(accessToken, bitbucketUser, "admin");
+        findAndAddUserTeamAccess(accessToken, bitbucketUser, "contributor");
+        findAndAddUserTeamAccess(accessToken, bitbucketUser, "member");
+
+        return bitbucketUser;
+    }
+
+    private BitbucketUser getBitbucketUser(Token accessToken) {
+        BitbucketUser bitbucketUser = getBitbucketUserV2(accessToken);
+        if (bitbucketUser != null) {
+            return bitbucketUser;
+        }
+        bitbucketUser = getBitbucketUserV1(accessToken);
+        if (bitbucketUser != null) {
+            return bitbucketUser;
+        }
+        throw new BitbucketMissingPermissionException(
+                "Your Bitbucket credentials lack one required privilege scopes: [Account Read]");
+    }
+
+    private BitbucketUser getBitbucketUserV2(Token accessToken) {
+        // require "Account Read" permission
+        OAuthRequest request = new OAuthRequest(Verb.GET, API2_ENDPOINT + "user");
+        service.signRequest(accessToken, request);
+        Response response = request.send();
+        String json = response.getBody();
+        Gson gson = new Gson();
+        BitbucketUser bitbucketUser = gson.fromJson(json, BitbucketUser.class);
+        if (bitbucketUser == null || StringUtils.isEmpty(bitbucketUser.username)) {
+            return null;
+        }
+        return bitbucketUser;
+    }
+
+    private BitbucketUser getBitbucketUserV1(Token accessToken) {
+        // require "Projects Read" permission
         OAuthRequest request = new OAuthRequest(Verb.GET, API_ENDPOINT + "user");
         service.signRequest(accessToken, request);
         Response response = request.send();
         String json = response.getBody();
         Gson gson = new Gson();
-        BitbucketUserResponce userResponce = gson.fromJson(json, BitbucketUserResponce.class);
-        if (userResponce != null && userResponce.user != null) {
-
-            userResponce.user.addAuthority("authenticated");
-
-            findAndAddUserTeamAccess(accessToken, userResponce.user, "admin");
-            findAndAddUserTeamAccess(accessToken, userResponce.user, "contributor");
-            findAndAddUserTeamAccess(accessToken, userResponce.user, "member");
-
-            return userResponce.user;
-
-        } else {
+        BitbucketUserResponce userResponse = gson.fromJson(json, BitbucketUserResponce.class);
+        if (userResponse == null) {
             return null;
         }
+        return userResponse.user;
     }
 
     private void findAndAddUserTeamAccess(Token accessToken, BitbucketUser bitbucketUser, String role) {
+        // require "Team membership Read" permission
         Gson gson = new Gson();
         String url = API2_ENDPOINT + "teams/?role=" + role;
         try {
