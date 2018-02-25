@@ -64,7 +64,7 @@ public class BitbucketApiService {
         String json = response.getBody();
         Gson gson = new Gson();
         BitbucketUserResponce userResponce = gson.fromJson(json, BitbucketUserResponce.class);
-        if (userResponce != null) {
+        if (userResponce != null && userResponce.user != null) {
 
             userResponce.user.addAuthority("authenticated");
 
@@ -79,14 +79,11 @@ public class BitbucketApiService {
         }
     }
 
-    private void findAndAddUserTeamAccess(Token accessToken, BitbucketUser bitbucketUser, String role)
-    {
+    private void findAndAddUserTeamAccess(Token accessToken, BitbucketUser bitbucketUser, String role) {
         Gson gson = new Gson();
-        String url = API2_ENDPOINT + "teams/?role="+role;
-        try
-        {
-            do
-            {
+        String url = API2_ENDPOINT + "teams/?role=" + role;
+        try {
+            do {
                 OAuthRequest request1 = new OAuthRequest(Verb.GET, url);
                 service.signRequest(accessToken, request1);
                 Response response1 = request1.send();
@@ -97,20 +94,15 @@ public class BitbucketApiService {
 
                 BitBucketTeamsResponse bitBucketTeamsResponse = gson.fromJson(json1, BitBucketTeamsResponse.class);
 
-                if(CollectionUtils.isNotEmpty(bitBucketTeamsResponse.getTeamsList()))
-                {
-                    for(Teams team : bitBucketTeamsResponse.getTeamsList())
-                    {
+                if (CollectionUtils.isNotEmpty(bitBucketTeamsResponse.getTeamsList())) {
+                    for (Teams team : bitBucketTeamsResponse.getTeamsList()) {
                         String authority = team.getUsername() + "::" + role;
                         bitbucketUser.addAuthority(authority);
                     }
                 }
                 url = bitBucketTeamsResponse.getNext();
-            }
-            while(url != null);
-        }
-        catch(Exception e)
-        {
+            } while (url != null);
+        } catch (Exception e) {
             // Some error, So ignore it and move on.
             e.printStackTrace();
         }
