@@ -1,7 +1,5 @@
 package org.jenkinsci.plugins;
 
-import hudson.security.SecurityRealm;
-
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
