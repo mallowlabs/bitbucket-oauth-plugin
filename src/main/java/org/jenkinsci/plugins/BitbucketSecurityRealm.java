@@ -50,7 +50,7 @@ public class BitbucketSecurityRealm extends SecurityRealm {
     private String clientSecret;
 
     @DataBoundConstructor
-    public BitbucketSecurityRealm(String clientID, String clientSecret, String team) {
+    public BitbucketSecurityRealm(String clientID, String clientSecret) {
         super();
         this.clientID = Util.fixEmptyAndTrim(clientID);
         this.clientSecret = Util.fixEmptyAndTrim(clientSecret);
