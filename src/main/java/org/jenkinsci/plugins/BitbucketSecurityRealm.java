@@ -69,7 +69,8 @@ public class BitbucketSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * @param clientID the clientID to set
+     * @param clientID
+     *            the clientID to set
      */
     public void setClientID(String clientID) {
         this.clientID = clientID;
@@ -83,21 +84,23 @@ public class BitbucketSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * @param clientSecret the clientSecret to set
+     * @param clientSecret
+     *            the clientSecret to set
      */
     public void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
     }
 
-    public HttpResponse doCommenceLogin(StaplerRequest request, @Header("Referer") final String referer) throws IOException {
+    public HttpResponse doCommenceLogin(StaplerRequest request, @Header("Referer") final String referer)
+            throws IOException {
 
         request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
 
         Jenkins jenkins = Jenkins.getInstance();
         if (jenkins == null) {
-        	throw new RuntimeException("Jenkins is not started yet.");
+            throw new RuntimeException("Jenkins is not started yet.");
         }
-		String rootUrl = jenkins.getRootUrl();
+        String rootUrl = jenkins.getRootUrl();
         if (StringUtils.endsWith(rootUrl, "/")) {
             rootUrl = StringUtils.left(rootUrl, StringUtils.length(rootUrl) - 1);
         }
@@ -121,7 +124,8 @@ public class BitbucketSecurityRealm extends SecurityRealm {
 
         Token requestToken = (Token) request.getSession().getAttribute(ACCESS_TOKEN_ATTRIBUTE);
 
-        Token accessToken = new BitbucketApiService(clientID, clientSecret).getTokenByAuthorizationCode(code, requestToken);
+        Token accessToken = new BitbucketApiService(clientID, clientSecret).getTokenByAuthorizationCode(code,
+                requestToken);
 
         if (!accessToken.isEmpty()) {
 
@@ -157,7 +161,8 @@ public class BitbucketSecurityRealm extends SecurityRealm {
                 throw new BadCredentialsException("Unexpected authentication type: " + authentication);
             }
         }, new UserDetailsService() {
-            public UserDetails loadUserByUsername(String username)  throws UserMayOrMayNotExistException, DataAccessException {
+            public UserDetails loadUserByUsername(String username)
+                    throws UserMayOrMayNotExistException, DataAccessException {
                 throw new UserMayOrMayNotExistException("Cannot verify users in this context");
             }
         });
@@ -171,7 +176,7 @@ public class BitbucketSecurityRealm extends SecurityRealm {
             throw new UsernameNotFoundException("BitbucketAuthenticationToken = null, no known user: " + username);
         }
         if (!(token instanceof BitbucketAuthenticationToken)) {
-          throw new UserMayOrMayNotExistException("Unexpected authentication type: " + token);
+            throw new UserMayOrMayNotExistException("Unexpected authentication type: " + token);
         }
         result = new BitbucketApiService(clientID, clientSecret).getUserByUsername(username);
         if (result == null) {
@@ -182,12 +187,9 @@ public class BitbucketSecurityRealm extends SecurityRealm {
 
     @Override
     public GroupDetails loadGroupByGroupname(String groupName) {
-        if(groupName.contains("::"))
-        {
+        if (groupName.contains("::")) {
             return new BitbucketGroup(groupName);
-        }
-        else
-        {
+        } else {
             throw new UsernameNotFoundException("Group does not exist:" + groupName);
         }
     }
