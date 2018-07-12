@@ -16,7 +16,9 @@ First you need to get consumer key/secret from Bitbucket.
 4. Under ACCESS MANAGEMENT select **OAuth**.
 5. Under OAuth consumers, click **Add consumer**
 6. The system requests the following information:
-   **Name** is required. Others are optional.
+   * **Name** is required.
+   * **Callback URL** is required. Input **https://your.jenkins.root/securityRealm/finishLogin** .
+   * Others are optional.
 7. Under Permissions, select **Account > Read** and **Team membership > Read**(optional).
 8. Click Save.
 The system generates a key and a secret for you.

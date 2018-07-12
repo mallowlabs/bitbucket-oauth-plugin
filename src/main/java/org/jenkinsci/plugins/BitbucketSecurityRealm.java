@@ -43,7 +43,6 @@ import jenkins.model.Jenkins;
 public class BitbucketSecurityRealm extends SecurityRealm {
 
     private static final String REFERER_ATTRIBUTE = BitbucketSecurityRealm.class.getName() + ".referer";
-    private static final String ACCESS_TOKEN_ATTRIBUTE = BitbucketSecurityRealm.class.getName() + ".access_token";
     private static final Logger LOGGER = Logger.getLogger(BitbucketSecurityRealm.class.getName());
 
     private String clientID;
@@ -108,24 +107,18 @@ public class BitbucketSecurityRealm extends SecurityRealm {
 
         BitbucketApiService bitbucketApiService = new BitbucketApiService(clientID, clientSecret, callback);
 
-        Token requestToken = bitbucketApiService.createRquestToken();
-        request.getSession().setAttribute(ACCESS_TOKEN_ATTRIBUTE, requestToken);
-
-        return new HttpRedirect(bitbucketApiService.createAuthorizationCodeURL(requestToken));
+        return new HttpRedirect(bitbucketApiService.createAuthorizationCodeURL(null));
     }
 
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
-        String code = request.getParameter("oauth_verifier");
+        String code = request.getParameter("code");
 
         if (StringUtils.isBlank(code)) {
             LOGGER.log(Level.SEVERE, "doFinishLogin() code = null");
             return HttpResponses.redirectToContextRoot();
         }
 
-        Token requestToken = (Token) request.getSession().getAttribute(ACCESS_TOKEN_ATTRIBUTE);
-
-        Token accessToken = new BitbucketApiService(clientID, clientSecret).getTokenByAuthorizationCode(code,
-                requestToken);
+        Token accessToken = new BitbucketApiService(clientID, clientSecret).getTokenByAuthorizationCode(code, null);
 
         if (!accessToken.isEmpty()) {
 

@@ -37,7 +37,7 @@ public class BitbucketApiService {
 
     public BitbucketApiService(String apiKey, String apiSecret, String callback) {
         super();
-        ServiceBuilder builder = new ServiceBuilder().provider(BitbucketApi.class).apiKey(apiKey).apiSecret(apiSecret);
+        ServiceBuilder builder = new ServiceBuilder().provider(BitbucketApiV2.class).apiKey(apiKey).apiSecret(apiSecret);
         if (StringUtils.isNotBlank(callback)) {
             builder.callback(callback);
         }
