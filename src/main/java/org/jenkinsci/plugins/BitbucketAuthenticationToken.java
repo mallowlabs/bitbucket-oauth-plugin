@@ -1,20 +1,23 @@
 package org.jenkinsci.plugins;
 
+import com.github.scribejava.core.model.OAuth2AccessToken;
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.api.BitbucketApiService;
 import org.jenkinsci.plugins.api.BitbucketUser;
-import org.scribe.model.Token;
 
 public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
 
     private static final long serialVersionUID = -7826610577724673531L;
 
-    private Token accessToken;
+    private OAuth2AccessToken accessToken;
     private BitbucketUser bitbucketUser;
 
-    public BitbucketAuthenticationToken(Token accessToken, String apiKey, String apiSecret) {
+    public BitbucketAuthenticationToken(OAuth2AccessToken accessToken, String apiKey, String apiSecret) {
+        super(null);
+
         this.accessToken = accessToken;
         this.bitbucketUser = new BitbucketApiService(apiKey, apiSecret).getUserByToken(accessToken);
 
@@ -35,7 +38,7 @@ public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * @return the accessToken
      */
-    public Token getAccessToken() {
+    public OAuth2AccessToken getAccessToken() {
         return accessToken;
     }
 

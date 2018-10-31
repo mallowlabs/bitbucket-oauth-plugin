@@ -4,6 +4,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.thoughtworks.xstream.converters.ConversionException;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
@@ -21,15 +29,7 @@ import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
-import org.scribe.model.Token;
 import org.springframework.dao.DataAccessException;
-
-import com.thoughtworks.xstream.converters.ConversionException;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import hudson.Extension;
 import hudson.Util;
@@ -41,13 +41,12 @@ import hudson.security.UserMayOrMayNotExistException;
 import jenkins.model.Jenkins;
 
 public class BitbucketSecurityRealm extends SecurityRealm {
-
     private static final String REFERER_ATTRIBUTE = BitbucketSecurityRealm.class.getName() + ".referer";
-    private static final String ACCESS_TOKEN_ATTRIBUTE = BitbucketSecurityRealm.class.getName() + ".access_token";
     private static final Logger LOGGER = Logger.getLogger(BitbucketSecurityRealm.class.getName());
 
     private String clientID;
     private String clientSecret;
+    private BitbucketApiService bitbucketApiService;
 
     @DataBoundConstructor
     public BitbucketSecurityRealm(String clientID, String clientSecret) {
@@ -91,9 +90,7 @@ public class BitbucketSecurityRealm extends SecurityRealm {
         this.clientSecret = clientSecret;
     }
 
-    public HttpResponse doCommenceLogin(StaplerRequest request, @Header("Referer") final String referer)
-            throws IOException {
-
+    public HttpResponse doCommenceLogin(StaplerRequest request, @Header("Referer") final String referer) throws IOException {
         request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
 
         Jenkins jenkins = Jenkins.getInstance();
@@ -106,28 +103,23 @@ public class BitbucketSecurityRealm extends SecurityRealm {
         }
         String callback = rootUrl + "/securityRealm/finishLogin";
 
-        BitbucketApiService bitbucketApiService = new BitbucketApiService(clientID, clientSecret, callback);
+        bitbucketApiService = new BitbucketApiService(clientID, clientSecret, callback);
 
-        Token requestToken = bitbucketApiService.createRquestToken();
-        request.getSession().setAttribute(ACCESS_TOKEN_ATTRIBUTE, requestToken);
-
-        return new HttpRedirect(bitbucketApiService.createAuthorizationCodeURL(requestToken));
+        return new HttpRedirect(bitbucketApiService.createAuthorizationCodeURL());
     }
 
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
-        String code = request.getParameter("oauth_verifier");
+
+        String code = request.getParameter("code");
 
         if (StringUtils.isBlank(code)) {
             LOGGER.log(Level.SEVERE, "doFinishLogin() code = null");
             return HttpResponses.redirectToContextRoot();
         }
 
-        Token requestToken = (Token) request.getSession().getAttribute(ACCESS_TOKEN_ATTRIBUTE);
+        OAuth2AccessToken accessToken = bitbucketApiService.getTokenByAuthorizationCode(code);
 
-        Token accessToken = new BitbucketApiService(clientID, clientSecret).getTokenByAuthorizationCode(code,
-                requestToken);
-
-        if (!accessToken.isEmpty()) {
+        if (accessToken.getAccessToken() != null) {
 
             BitbucketAuthenticationToken auth = new BitbucketAuthenticationToken(accessToken, clientID, clientSecret);
             SecurityContextHolder.getContext().setAuthentication(auth);

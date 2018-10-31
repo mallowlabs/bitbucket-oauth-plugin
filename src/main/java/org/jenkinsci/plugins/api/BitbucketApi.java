@@ -1,23 +1,29 @@
 package org.jenkinsci.plugins.api;
 
-import org.scribe.builder.api.DefaultApi10a;
-import org.scribe.model.Token;
+import com.github.scribejava.core.builder.api.DefaultApi20;
 
-public class BitbucketApi extends DefaultApi10a {
-    private static final String OAUTH_ENDPOINT = "https://bitbucket.org/api/1.0/oauth/";
+public class BitbucketApi extends DefaultApi20 {
+    private static final String TOKEN_URL = "https://bitbucket.org/site/oauth2/access_token";
+    private static final String AUTHORIZE_URL = "https://bitbucket.org/site/oauth2/authorize";
+
+    protected BitbucketApi() {
+    }
+
+    private static class InstanceHolder {
+        private static final BitbucketApi INSTANCE = new BitbucketApi();
+    }
+
+    public static BitbucketApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
     @Override
     public String getAccessTokenEndpoint() {
-        return OAUTH_ENDPOINT + "access_token";
+      return TOKEN_URL;
     }
 
     @Override
-    public String getAuthorizationUrl(Token oauthToken) {
-        return OAUTH_ENDPOINT + "authenticate?oauth_token=" + oauthToken.getToken();
-    }
-
-    @Override
-    public String getRequestTokenEndpoint() {
-        return OAUTH_ENDPOINT + "request_token";
+    protected String getAuthorizationBaseUrl() {
+        return AUTHORIZE_URL;
     }
 }

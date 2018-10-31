@@ -1,7 +1,9 @@
 target
 work
 .classpath
+.factorypath
 .project
 .settings
 *.iml
 .idea
+.vscode

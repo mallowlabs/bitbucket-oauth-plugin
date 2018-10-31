@@ -8,24 +8,9 @@ import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 import org.apache.commons.lang.StringUtils;
 
-import com.google.gson.annotations.SerializedName;
-
 public class BitbucketUser implements UserDetails {
 
-    public class BitbucketUserResponce {
-        public BitbucketUser user;
-    }
-
     public String username = StringUtils.EMPTY;
-    @SerializedName("first_name")
-    public String firstName;
-    @SerializedName("last_name")
-    public String lastName;
-    @SerializedName("is_team")
-    public boolean isTeam;
-    public String avatar;
-    @SerializedName("resource_uri")
-    public String resourceUri;
 
     List<GrantedAuthority> grantedAuthorties = new ArrayList<GrantedAuthority>();
 
@@ -73,5 +58,4 @@ public class BitbucketUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
