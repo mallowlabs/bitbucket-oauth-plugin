@@ -11,7 +11,6 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.api.BitbucketUser.BitbucketUserResponce;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -26,7 +25,6 @@ public class BitbucketApiService {
 
     private static final Logger LOGGER = Logger.getLogger(BitbucketApiService.class.getName());
 
-    private static final String API_ENDPOINT = "https://api.bitbucket.org/1.0/";
     private static final String API2_ENDPOINT = "https://api.bitbucket.org/2.0/";
 
     private OAuthService service;
@@ -74,10 +72,6 @@ public class BitbucketApiService {
         if (bitbucketUser != null) {
             return bitbucketUser;
         }
-        bitbucketUser = getBitbucketUserV1(accessToken);
-        if (bitbucketUser != null) {
-            return bitbucketUser;
-        }
         throw new BitbucketMissingPermissionException(
                 "Your Bitbucket credentials lack one required privilege scopes: [Account Read]");
     }
@@ -94,20 +88,6 @@ public class BitbucketApiService {
             return null;
         }
         return bitbucketUser;
-    }
-
-    private BitbucketUser getBitbucketUserV1(Token accessToken) {
-        // require "Projects Read" permission
-        OAuthRequest request = new OAuthRequest(Verb.GET, API_ENDPOINT + "user");
-        service.signRequest(accessToken, request);
-        Response response = request.send();
-        String json = response.getBody();
-        Gson gson = new Gson();
-        BitbucketUserResponce userResponse = gson.fromJson(json, BitbucketUserResponce.class);
-        if (userResponse == null) {
-            return null;
-        }
-        return userResponse.user;
     }
 
     private void findAndAddUserTeamAccess(Token accessToken, BitbucketUser bitbucketUser, String role) {
@@ -142,12 +122,12 @@ public class BitbucketApiService {
 
     public UserDetails getUserByUsername(String username) {
         InputStreamReader reader = null;
-        BitbucketUserResponce userResponce = null;
+        UserDetails userResponce = null;
         try {
-            URL url = new URL(API_ENDPOINT + "users/" + username);
+            URL url = new URL(API2_ENDPOINT + "users/" + username);
             reader = new InputStreamReader(url.openStream(), "UTF-8");
             Gson gson = new Gson();
-            userResponce = gson.fromJson(reader, BitbucketUserResponce.class);
+            userResponce = gson.fromJson(reader, BitbucketUser.class);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {
@@ -159,7 +139,7 @@ public class BitbucketApiService {
         }
 
         if (userResponce != null) {
-            return userResponce.user;
+            return userResponce;
         } else {
             return null;
         }
