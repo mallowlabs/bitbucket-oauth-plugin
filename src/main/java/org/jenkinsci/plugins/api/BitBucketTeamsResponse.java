@@ -15,14 +15,14 @@ public class BitBucketTeamsResponse
     private String next;
 
     @SerializedName("values")
-    private List<Teams> teamsList;
+    private List<BitbucketTeams> teamsList;
 
-    public List<Teams> getTeamsList()
+    public List<BitbucketTeams> getTeamsList()
     {
         return teamsList;
     }
 
-    public void setTeamsList(List<Teams> teamsList)
+    public void setTeamsList(List<BitbucketTeams> teamsList)
     {
         this.teamsList = teamsList;
     }

@@ -107,7 +107,7 @@ public class BitbucketApiService {
                 BitBucketTeamsResponse bitBucketTeamsResponse = gson.fromJson(json1, BitBucketTeamsResponse.class);
 
                 if (CollectionUtils.isNotEmpty(bitBucketTeamsResponse.getTeamsList())) {
-                    for (Teams team : bitBucketTeamsResponse.getTeamsList()) {
+                    for (BitbucketTeams team : bitBucketTeamsResponse.getTeamsList()) {
                         String authority = team.getUsername() + "::" + role;
                         bitbucketUser.addAuthority(authority);
                     }
