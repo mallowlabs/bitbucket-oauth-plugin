@@ -41,7 +41,7 @@ public class BitbucketApiV2 extends DefaultApi20 {
         return new JsonTokenExtractor();
     }
 
-    private class BitbucketOAuth20Service extends OAuth20ServiceImpl {
+    private static class BitbucketOAuth20Service extends OAuth20ServiceImpl {
 
         private static final String GRANT_TYPE = "grant_type";
 
