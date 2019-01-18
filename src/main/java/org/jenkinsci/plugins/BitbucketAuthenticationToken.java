@@ -5,6 +5,8 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.api.BitbucketApiService;
 import org.jenkinsci.plugins.api.BitbucketUser;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.scribe.model.Token;
 
 public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
@@ -54,4 +56,8 @@ public class BitbucketAuthenticationToken extends AbstractAuthenticationToken {
         return (bitbucketUser != null ? bitbucketUser.getUsername() : null);
     }
 
+    @Restricted(NoExternalUse.class)
+    public BitbucketUser getBitbucketUser(){
+        return bitbucketUser;
+    }
 }
